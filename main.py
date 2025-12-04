@@ -169,8 +169,8 @@ import torch
 # ---------- Load model ----------
 MODEL_PATH = "./model"
 
-tokenizer = DistilBertTokenizerFast.from_pretrained("Andrues/my-model")
-model = DistilBertForSequenceClassification.from_pretrained("Andrues/my-model")
+tokenizer = DistilBertTokenizerFast.from_pretrained("Andrues/my-model/model")
+model = DistilBertForSequenceClassification.from_pretrained("Andrues/my-model/model")
 
 
 #tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
@@ -210,6 +210,7 @@ def predict(msg: Message):
         "flag": label,
         "confidence": round(conf, 4)
     }
+
 
 
 
