@@ -169,9 +169,12 @@ import torch
 # ---------- Load model ----------
 MODEL_PATH = "./model"
 
+tokenizer = DistilBertTokenizerFast.from_pretrained("Andrues/my-model")
+model = DistilBertForSequenceClassification.from_pretrained("Andrues/my-model")
 
-tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
-model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+
+#tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
+#model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
 model.eval()
 
 # ---------- FastAPI App ----------
@@ -210,5 +213,6 @@ def predict(msg: Message):
 
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
 
