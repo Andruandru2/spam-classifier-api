@@ -161,7 +161,7 @@ if __name__ == "__main__":
     #without fast api'''
 
 # With fast api
-from fastapi import FastAPI
+'''from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast
 import torch
@@ -209,7 +209,70 @@ def predict(msg: Message):
         "prediction": "spam" if label == 1 else "ham",
         "flag": label,
         "confidence": round(conf, 4)
+    }'''
+
+#fast api with hg api
+from fastapi import FastAPI
+from pydantic import BaseModel
+import requests
+import os
+
+# ---------------- HF API DETAILS ----------------
+HF_API_URL = "https://api-inference.huggingface.co/models/Andrues/my-model"
+HF_API_KEY = os.getenv("HF_API_KEY")  # Set this in Render Dashboard
+
+headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+
+# ---------------- FASTAPI APP ----------------
+app = FastAPI(title="Spam Classifier API (HF Powered)", version="1.0")
+
+class Message(BaseModel):
+    text: str
+
+
+# ---------------- PREDICTION FUNCTION ----------------
+def predict_spam(text: str):
+    payload = {"inputs": text}
+
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
+
+    try:
+        data = response.json()
+    except:
+        return None
+
+    # HF Output: [{"label": "LABEL_1", "score": 0.98}, ...]
+    if isinstance(data, list) and len(data) > 0:
+        result = max(data, key=lambda x: x["score"])
+        label = 1 if result["label"] == "LABEL_1" else 0
+        confidence = float(result["score"])
+        return label, confidence
+
+    return None
+
+
+# ---------------- ROUTES ----------------
+@app.get("/")
+def home():
+    return {"status": "HF Powered Spam Classifier API Running"}
+
+@app.post("/predict")
+def predict(msg: Message):
+    output = predict_spam(msg.text)
+
+    if output is None:
+        return {"error": "Model request failed. Check HF_API_KEY or model status."}
+
+    label, conf = output
+
+    return {
+        "input": msg.text,
+        "prediction": "spam" if label == 1 else "ham",
+        "flag": label,
+        "confidence": round(conf, 4)
     }
+
+
 
 
 
